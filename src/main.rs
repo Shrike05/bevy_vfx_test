@@ -1,5 +1,3 @@
-//! A shader and a material that uses it.
-
 use bevy::{
     prelude::*,
     reflect::{TypePath, TypeUuid},
@@ -7,7 +5,6 @@ use bevy::{
     sprite::{Material2d, MaterialMesh2dBundle, Material2dPlugin},
 };
 
-// This is the struct that will be passed to your shader
 #[derive(TypeUuid, TypePath, AsBindGroup, Debug, Clone)]
 #[uuid = "8b79a178-855c-44d6-a0ca-bacf7b988219"]
 pub struct Custom2DMaterial {
@@ -34,20 +31,13 @@ fn main() {
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     mut custom_material: ResMut<Assets<Custom2DMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn(Camera2dBundle::default());
-    // commands.spawn(MaterialMesh2dBundle {
-    //     mesh: meshes.add(Mesh::from(shape::Quad::default())).into(),
-    //     transform: Transform::default().with_scale(Vec3::splat(128.)),
-    //     material: materials.add(ColorMaterial::from(Color::PURPLE)),
-    //     ..default()
-    // });
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Mesh::from(shape::Quad::default())).into(),
-        transform: Transform::default().with_scale(Vec3::splat(128.)),
+        transform: Transform::default().with_scale(Vec3 { x: 1000., y: 500., z: 0. }),
         material: custom_material.add(Custom2DMaterial {
             color: Color::WHITE,
             color_texture: Some(asset_server.load("textures/a.png")),

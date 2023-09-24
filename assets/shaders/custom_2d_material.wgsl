@@ -15,6 +15,12 @@ var color_sampler: sampler;
 fn fragment(
     mesh: MeshVertexOutput,
 ) -> @location(0) vec4<f32> {
-    return vec4(1.0,1.0,1.0,1.0);
-    //return material.color * textureSample(base_color_texture, base_color_sampler, mesh.uv);
+    //return vec4(1.0,1.0,1.0,1.0);
+    return vec4<f32>(
+        textureSample(color_texture, color_sampler, mesh.uv + vec2<f32>(0.01, -0.01)).r,
+        textureSample(color_texture, color_sampler, mesh.uv + vec2<f32>(-0.01, 0.0)).g,
+        textureSample(color_texture, color_sampler, mesh.uv + vec2<f32>(0.0, 0.01)).b,
+        1.0
+    );
+    //return material.color * textureSample(color_texture, color_sampler, mesh.uv);
 }
