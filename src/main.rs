@@ -28,7 +28,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Start loading the texture.
     commands.insert_resource(LoadingTexture {
         is_loaded: false,
-        handle: asset_server.load(r"textures\rect.png"),
+        handle: asset_server.load(r"textures\a.png"),
     });
 
     // light
@@ -51,7 +51,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     // camera
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(5.0, 5.0, 5.0).looking_at(Vec3::new(1.5, 0.0, 0.0), Vec3::Y),
+        transform: Transform::from_xyz(0.0, 5.0, 0.0).looking_at(Vec3::new(0., 0.0, 0.0), Vec3::Y),
         ..Default::default()
     });
 }
@@ -76,23 +76,21 @@ fn create_array_texture(
     let array_layers = 4;
     image.reinterpret_stacked_2d_as_array(array_layers);
 
-    // Spawn some cubes using the array texture
-    let mesh_handle = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
+    // Spawn Plane
     let material_handle = materials.add(ArrayTextureMaterial {
         array_texture: loading_texture.handle.clone(),
     });
-    for x in -5..=5 {
-        commands.spawn(MaterialMeshBundle {
-            mesh: mesh_handle.clone(),
-            material: material_handle.clone(),
-            transform: Transform::from_xyz(x as f32 + 0.5, 0.0, 0.0),
-            ..Default::default()
-        });
-    }
+    commands.spawn(MaterialMeshBundle {
+        mesh: meshes.add(shape::Plane::from_size(5.0).into()),
+        material: material_handle.clone(),
+        transform: Transform::from_xyz(0., 0.0, 0.0),
+        ..Default::default()
+    });
+
 }
 
 #[derive(TypeUuid, TypePath, AsBindGroup, Debug, Clone)]
-#[uuid="8a79a178-855c-44d6-a0ca-bacf7b988219"]
+#[uuid = "8a79a178-855c-44d6-a0ca-bacf7b988219"]
 struct ArrayTextureMaterial {
     #[texture(0, dimension = "2d_array")]
     #[sampler(1)]
