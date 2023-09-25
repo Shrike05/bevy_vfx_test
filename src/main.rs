@@ -5,11 +5,20 @@ use bevy::{
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle}, window::PrimaryWindow,
 };
 
+#[derive(Resource)]
+struct PostProcessMat{
+    handle: Handle<Custom2DMaterial>
+}
+
 #[derive(TypeUuid, TypePath, AsBindGroup, Debug, Clone)]
 #[uuid = "8b79a178-855c-44d6-a0ca-bacf7b988219"]
 pub struct Custom2DMaterial {
     #[uniform(0)]
     color: Color,
+    #[uniform(0)]
+    intensity: f32,
+    #[uniform(0)]
+    vignette: f32,
     #[texture(1)]
     #[sampler(2)]
     color_texture: Option<Handle<Image>>,
@@ -28,6 +37,7 @@ fn main() {
             Material2dPlugin::<Custom2DMaterial>::default(),
         ))
         .add_systems(Startup, setup)
+        .add_systems(Update, update_material)
         .run();
 }
 
@@ -93,6 +103,15 @@ fn setup(
         layer,
     ));
 
+
+    let mat = custom_material.add(Custom2DMaterial {
+        color: Color::WHITE,
+        intensity: 0.,
+        vignette: 2.,
+        color_texture: Some(image_handle),
+    });
+    commands.insert_resource(PostProcessMat{handle:mat.clone()});
+
     commands.spawn((MaterialMesh2dBundle {
         mesh: meshes.add(Mesh::from(shape::Quad::default())).into(),
         transform: Transform::default().with_scale(Vec3 {
@@ -100,11 +119,18 @@ fn setup(
             y: window_size.y,
             z: 0.,
         }),
-        material: custom_material.add(Custom2DMaterial {
-            color: Color::WHITE,
-            color_texture: Some(image_handle),
-        }),
+        material: mat,
         ..Default::default()
     },));
     commands.spawn(Camera2dBundle::default());
+}
+
+fn update_material(
+    mut custom_material: ResMut<Assets<Custom2DMaterial>>,
+    post_processing_mat: Res<PostProcessMat>,
+    time: Res<Time>,
+){
+    let mat = custom_material.get_mut(&post_processing_mat.handle).expect("Couldn't get processing mat");
+    mat.intensity = ((8.*time.elapsed_seconds_f64() as f32).sin())/500.;
+    mat.vignette = ((2.*time.elapsed_seconds_f64()as f32).sin()+1.)/2.;
 }
